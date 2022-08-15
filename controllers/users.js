@@ -6,7 +6,7 @@ const getUsers = (req, res) => {
       res.send({data: users});
     })
     .catch((err) => {
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
+      res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
@@ -19,7 +19,7 @@ const getUser = (req, res) => {
       res.send({data: user});
     })
     .catch((err) => {
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
+      res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
@@ -29,7 +29,8 @@ const createUser = (req, res) => {
       res.send({data: user});
     })
     .catch((err) => {
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
+      if (err.name === 'ValidationError') res.status(400).send({ message: `${err}` });
+      else res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
@@ -43,7 +44,8 @@ const updateUser = (req, res) => {
       res.send({data: user});
     })
     .catch((err) => {
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
+      if (err.name === 'ValidationError') res.status(400).send({ message: `${err}` });
+      else res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
@@ -55,7 +57,8 @@ const updateAvatar = (req, res) => {
       res.send({data: user});
     })
     .catch((err) => {
-      console.log(`Произошла ошибка: ${err.name} ${err.message}`);
+      if (err.name === 'ValidationError') res.status(400).send({ message: `${err}` });
+      else res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 }
 
