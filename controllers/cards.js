@@ -23,39 +23,38 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   card.findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      res.send({data: card});
-    })
-    .catch((err) => {
-      res.status(404).send({message: `Произошла ошибка ${err}`});
-    });
+  .then((card) => {
+    if(card) res.send({data: card});
+    else {
+      res.status(404).send({message: 'Нет карточки с таким id'})
+    }
+  })
+  .catch((err) => res.status(400).send({ message: `Некорректный id карточки` }));
 };
 
 const likeCard = (req, res) => card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } },
   { new: true })
-  .then((card) => res.send({data: card}))
-  .catch((err) => {
-    if(err) {
-      res.status(404).send({ message: 'Нет карточки с таким id' })
-      return
+  .then((card) => {
+    if(card) res.send({data: card});
+    else {
+      res.status(404).send({message: 'Нет карточки с таким id'})
     }
-    res.status(500).send({ message: `Произошла ошибка ${err}` })
-  });
+  })
+  .catch((err) => res.status(400).send({ message: `Некорректный id карточки` }));
 
 
 const dislikeCard = (req, res) => card.findByIdAndUpdate(
   req.params.cardId,
   { $pull: { likes: req.user._id } },
   { new: true })
-  .then((card) => res.send({data: card}))
-  .catch((err) => {
-    if(err) {
-      res.status(404).send({ message: 'Нет карточки с таким id' })
-      return
+  .then((card) => {
+    if(card) res.send({data: card});
+    else {
+      res.status(404).send({message: 'Нет карточки с таким id'})
     }
-    res.status(500).send({ message: `Произошла ошибка ${err}` })
-  });
+  })
+  .catch((err) => res.status(400).send({ message: `Некорректный id карточки` }));
 
 module.exports = { getCards, createCard, deleteCard, likeCard, dislikeCard }
