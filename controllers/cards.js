@@ -37,6 +37,10 @@ const likeCard = (req, res) => card.findByIdAndUpdate(
   { new: true })
   .then((card) => res.send({data: card}))
   .catch((err) => {
+    if(err) {
+      res.status(404).send({ message: 'Нет карточки с таким id' })
+      return
+    }
     res.status(500).send({ message: `Произошла ошибка ${err}` })
   });
 
@@ -47,6 +51,10 @@ const dislikeCard = (req, res) => card.findByIdAndUpdate(
   { new: true })
   .then((card) => res.send({data: card}))
   .catch((err) => {
+    if(err) {
+      res.status(404).send({ message: 'Нет карточки с таким id' })
+      return
+    }
     res.status(500).send({ message: `Произошла ошибка ${err}` })
   });
 
