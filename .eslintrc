@@ -8,7 +8,6 @@
         "ecmaVersion": "latest"
     },
     "rules": {
-        "no-underscore-dangle": "off",
-        "eslint-disable-next-line": "no-console"
+        "no-underscore-dangle": "off"
     }
 }

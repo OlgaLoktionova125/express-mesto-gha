@@ -1,9 +1,10 @@
-const user = require('../models/user');
+const mongoose = require('mongoose');
+const User = require('../models/user');
 
 const getUsers = (req, res) => {
-  user.find({})
+  User.find({})
     .then((users) => {
-      res.send({data: users});
+      res.send({ data: users });
     })
     .catch((err) => {
       res.status(500).send({ message: `Произошла ошибка ${err}` });
@@ -11,7 +12,7 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  user.findById(req.params.id)
+  User.findById(req.params.id)
     .then((user) => {
       if (user) res.send({ data: user });
       else {
@@ -20,45 +21,46 @@ const getUser = (req, res) => {
         });
       }
     })
-    .catch((err) => res.status(400).send({ message: `Некорректный id` }));
+    .catch((err) => {
+      if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) res.status(400).send({ message: 'Некорректный id пользователя' });
+      else res.status(500).send({ message: `Произошла ошибка ${err}` });
+    });
 };
 
 const createUser = (req, res) => {
-  user.create({...req.body})
+  User.create({ ...req.body })
     .then((user) => {
-      res.send({data: user});
+      res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') res.status(400).send({ message: `Произошла ошибка ${err}` });
+      if (err.name === 'ValidationError') res.status(400).send({ message: 'Ошибка валидации данных' });
       else res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
 const updateUser = (req, res) => {
-  const {name, about} = req.body;
-  user.findByIdAndUpdate(req.user._id, { name, about }, {new: true, runValidators: true})
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
-      res.send({data: user});
+      res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: `Произошла ошибка ${err}` });
-      } else {
-        res.status(500).send({ message: `Произошла ошибка ${err}` });
-      }
+      if (!mongoose.Types.ObjectId.isValid(req.params.cardId) || err.name === 'ValidationError') res.status(400).send({ message: 'Ошибка валидации данных' });
+      else res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
 const updateAvatar = (req, res) => {
-  const {avatar} = req.body;
-  user.findByIdAndUpdate(req.user._id, { avatar }, {new: true, runValidators: true})
+  const { avatar } = req.body;
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => {
-      res.send({data: user});
+      res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') res.status(400).send({ message: `Произошла ошибка ${err}` });
-      else res.status(500).send({ message: `Произошла ошибка ${err}` });
+      res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
-}
+};
 
-module.exports = { getUsers, getUser, createUser, updateUser, updateAvatar };
+module.exports = {
+  getUsers, getUser, createUser, updateUser, updateAvatar,
+};

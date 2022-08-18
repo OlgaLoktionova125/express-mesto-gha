@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "npx eslint",
+    "lint": "eslint . --ext .js",
     "start": "node app.js",
     "dev": "nodemon app.js",
     "deploy": "gh-pages -d dist"
@@ -23,8 +23,7 @@
   "homepage": "https://github.com/OlgaLoktionova125/express-mesto-gha#readme",
   "dependencies": {
     "express": "^4.18.1",
-    "mongoose": "^6.5.2",
-    "uuid": "^8.3.2"
+    "mongoose": "^6.5.2"
   },
   "devDependencies": {
     "eslint": "^8.2.0",
