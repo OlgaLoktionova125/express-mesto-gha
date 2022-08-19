@@ -58,7 +58,7 @@ const updateAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') res.status(400).send({ message: 'Ошибка валидации данных' });
-      res.status(500).send({ message: `Произошла ошибка ${err}` });
+      else res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
