@@ -22,7 +22,7 @@ const getUser = (req, res) => {
       }
     })
     .catch((err) => {
-      if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) res.status(400).send({ message: 'Некорректный id пользователя' });
+      if (!mongoose.Types.ObjectId.isValid(req.params.id)) res.status(400).send({ message: 'Некорректный id пользователя' });
       else res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
@@ -45,18 +45,19 @@ const updateUser = (req, res) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      if (!mongoose.Types.ObjectId.isValid(req.params.cardId) || err.name === 'ValidationError') res.status(400).send({ message: 'Ошибка валидации данных' });
+      if (err.name === 'ValidationError') res.status(400).send({ message: 'Ошибка валидации данных' });
       else res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       res.send({ data: user });
     })
     .catch((err) => {
+      if (err.name === 'ValidationError') res.status(400).send({ message: 'Ошибка валидации данных' });
       res.status(500).send({ message: `Произошла ошибка ${err}` });
     });
 };
