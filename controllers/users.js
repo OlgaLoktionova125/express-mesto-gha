@@ -49,7 +49,8 @@ const login = (req, res, next) => {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
         })
-        .send({ message: 'Авторизация прошла успешно!' });
+        .status(200)
+        .json({ message: 'Авторизация прошла успешно!' });
     })
     .catch(next);
 };
@@ -63,7 +64,7 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  User.findById(req.params.id)
+  User.findById(req.params._id)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Нет пользователя с таким id');
