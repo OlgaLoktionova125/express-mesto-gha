@@ -5,7 +5,6 @@ const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
 const ConflictError = require('../errors/ConflictError');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
 const SALT_ROUNDS = 10;
 
 const createUser = (req, res, next) => {
@@ -41,16 +40,16 @@ const login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV ? JWT_SECRET : 'dev-secret',
+        'some-secret-key',
         { expiresIn: '7d' },
       );
       res
         .cookie('jwt', token, {
-          maxAge: 3600000 * 24 * 7,
+          maxAge: 3600000,
           httpOnly: true,
         })
         .status(200)
-        .json({ message: 'Авторизация прошла успешно!' });
+        .send({ message: 'Авторизация прошла успешно!' });
     })
     .catch(next);
 };
@@ -64,7 +63,7 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  User.findById(req.params._id)
+  User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Нет пользователя с таким id');
@@ -125,5 +124,5 @@ const updateAvatar = (req, res, next) => {
 };
 
 module.exports = {
-  getUsers, getUser, createUser, login, updateUser, updateAvatar, getCurrentUser,
+  createUser, login, getUsers, getUser, getCurrentUser, updateUser, updateAvatar,
 };

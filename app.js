@@ -10,12 +10,12 @@ const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
 
 const app = express();
-app.use(cookieParser());
 
 const { PORT = 3000 } = process.env;
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(express.json());
+app.use(cookieParser());
 
 app.post(
   '/signup',
@@ -55,7 +55,7 @@ app.use(errors());
 
 app.use((err, req, res, next) => {
   const { statusCode, message } = err;
-  res.status(statusCode).send({
+  res.status(err.statusCode).send({
     message: statusCode === 500
       ? 'На сервере произошла ошибка'
       : message,
