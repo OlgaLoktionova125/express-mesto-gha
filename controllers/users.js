@@ -70,7 +70,12 @@ const getUser = (req, res, next) => {
       }
       return res.send({ data: user });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new ValidationError('Некорректный id пользователя'));
+      }
+      return next(err);
+    });
 };
 
 const getCurrentUser = (req, res, next) => {
