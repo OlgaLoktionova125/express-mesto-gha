@@ -26,17 +26,22 @@ const createCard = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
+    .orFail(() => {
+      throw new NotFoundError('Карточка не найдена');
+    })
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка не найдена');
-      }
       if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError('Это чужая карточка, ее нельзя удалить');
       } else {
         return card.remove()
           .then(() => res.send({ message: 'Карточка удалена' }));
       }
-    }).catch(next);
+    }).catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new ValidationError('Некорректный id карточки'));
+      }
+      return next(err);
+    });
 };
 
 const likeCard = (req, res, next) => {
@@ -45,13 +50,16 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка не найдена');
-      }
-      return res.send({ data: card });
+    .orFail(() => {
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch(next);
+    .then((card) => res.send({ data: card }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new ValidationError('Некорректный id карточки'));
+      }
+      return next(err);
+    });
 };
 
 const dislikeCard = (req, res, next) => {
@@ -60,13 +68,16 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка не найдена');
-      }
-      return res.send({ data: card });
+    .orFail(() => {
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch(next);
+    .then((card) => res.send({ data: card }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new ValidationError('Некорректный id карточки'));
+      }
+      return next(err);
+    });
 };
 
 module.exports = {

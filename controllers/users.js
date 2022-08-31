@@ -11,25 +11,30 @@ const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
-  bcrypt.hash(password, SALT_ROUNDS)
-    .then((hash) => User.create({
-      email, password: hash, name, about, avatar,
-    }))
-    .then((user) => res.send({
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-      email: user.email,
-      _id: user._id,
-    }))
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        throw new ConflictError('Такой пользователь уже существует!');
+      }
+    })
+    .then(() => {
+      bcrypt.hash(password, SALT_ROUNDS)
+        .then((hash) => User.create({
+          email, password: hash, name, about, avatar,
+        }))
+        .then((user) => res.send({
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+          _id: user._id,
+        }));
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Введены некорректные данные'));
-      } else if (err.code === 11000) {
-        next(new ConflictError('Такой пользователь уже существует!)'));
-      } else {
-        next(err);
+        return next(new ValidationError('Введены некорректные данные'));
       }
+      return next(err);
     });
 };
 
@@ -64,12 +69,10 @@ const getUsers = (req, res, next) => {
 
 const getUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
-      return res.send({ data: user });
+    .orFail(() => {
+      throw new NotFoundError('Нет пользователя с таким id');
     })
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
         return next(new ValidationError('Некорректный id пользователя'));
@@ -80,12 +83,10 @@ const getUser = (req, res, next) => {
 
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
-      return res.send({ data: user });
+    .orFail(() => {
+      throw new NotFoundError('Нет пользователя с таким id');
     })
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
         return next(new ValidationError('Некорректный id пользователя'));
@@ -97,12 +98,10 @@ const getCurrentUser = (req, res, next) => {
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
-      res.send({ data: user });
+    .orFail(() => {
+      throw new NotFoundError('Нет пользователя с таким id');
     })
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(new ValidationError('Введены некорректные данные'));
@@ -114,12 +113,10 @@ const updateUser = (req, res, next) => {
 const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
-      res.send({ data: user });
+    .orFail(() => {
+      throw new NotFoundError('Нет пользователя с таким id');
     })
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(new ValidationError('Введены некорректные данные'));
